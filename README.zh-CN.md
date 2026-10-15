@@ -31,12 +31,18 @@ REAPER
 - [uv](https://docs.astral.sh/uv/)(`winget install astral-sh.uv` / `brew install uv`)。uv 会自己准备合适的 Python 和依赖,不用另装 Python。
 - [Git](https://git-scm.com/downloads),uv 用它从 GitHub 下载本仓库。没有 Git?见[不用 Git 安装](#不用-git-安装)。
 
-下面的命令都是直接从本 GitHub 仓库运行。
-
-### 1. 把 Lua 桥装进 REAPER(一次性)
+### 1. 安装(一次性)
 
 ```sh
-uvx --from git+https://github.com/Echo722/reaper-mcp-bridge reaper-mcp-bridge install-bridge --autostart
+uv tool install git+https://github.com/Echo722/reaper-mcp-bridge
+```
+
+装好后会多出一个 `reaper-mcp-bridge` 命令。agent 在本机直接运行它,之后断网也能用。如果提示找不到命令,运行 `uv tool update-shell` 后重新打开终端。
+
+### 2. 把 Lua 桥装进 REAPER(一次性)
+
+```sh
+reaper-mcp-bridge install-bridge --autostart
 ```
 
 自动探测 REAPER 安装位置(便携版加 `--reaper-dir "D:\REAPER"`),把桥脚本拷进 `Scripts/` 并设置开机自动加载。重启 REAPER,控制台应显示:
@@ -48,15 +54,15 @@ uvx --from git+https://github.com/Echo722/reaper-mcp-bridge reaper-mcp-bridge in
 验证链路:
 
 ```sh
-uvx --from git+https://github.com/Echo722/reaper-mcp-bridge reaper-mcp-bridge doctor
+reaper-mcp-bridge doctor
 ```
 
-### 2. 在 agent 里注册(每个客户端一次)
+### 3. 在 agent 里注册(每个客户端一次)
 
 **Claude Code**
 
 ```sh
-claude mcp add --scope user reaper -- uvx --from git+https://github.com/Echo722/reaper-mcp-bridge reaper-mcp-bridge
+claude mcp add --scope user reaper -- reaper-mcp-bridge
 ```
 
 **Claude Desktop**——把 [examples/claude_desktop_config.example.json](examples/claude_desktop_config.example.json) 合并进你的 `claude_desktop_config.json`,完全退出再重启 Desktop。
@@ -65,13 +71,12 @@ claude mcp add --scope user reaper -- uvx --from git+https://github.com/Echo722/
 
 ```toml
 [mcp_servers.reaper]
-command = "uvx"
-args = ["--from", "git+https://github.com/Echo722/reaper-mcp-bridge", "reaper-mcp-bridge"]
+command = "reaper-mcp-bridge"
 ```
 
-其他支持 stdio 的 MCP 客户端同理:命令 `uvx`,参数 `--from git+https://github.com/Echo722/reaper-mcp-bridge reaper-mcp-bridge`。
+其他支持 stdio 的 MCP 客户端同理:命令 `reaper-mcp-bridge`,不需要参数。客户端找不到命令时就填完整路径,`uv tool dir --bin` 会打印它所在的文件夹。
 
-### 3. 开始用
+### 4. 开始用
 
 打开 REAPER,对 agent 说:
 
@@ -83,19 +88,21 @@ args = ["--from", "git+https://github.com/Echo722/reaper-mcp-bridge", "reaper-mc
 
 ## 更新
 
-uv 首次运行后会缓存这个包。要拿到 GitHub 上的最新版本,带 `--refresh` 跑一次,然后重启 agent(或重连 `reaper` 服务),让它启动新版本:
-
 ```sh
-uvx --refresh --from git+https://github.com/Echo722/reaper-mcp-bridge reaper-mcp-bridge doctor
+uv tool upgrade reaper-mcp-bridge
 ```
+
+然后重启 agent(或重连 `reaper` 服务),让它启动新版本。
 
 ## 不用 Git 安装
 
-把上面所有命令里的 `git+https://...` 换成 GitHub 上 `main` 分支的 zip 下载地址即可,例如:
+改用 GitHub 上 `main` 分支的 zip 下载地址安装:
 
 ```sh
-uvx --from https://github.com/Echo722/reaper-mcp-bridge/archive/refs/heads/main.zip reaper-mcp-bridge install-bridge --autostart
+uv tool install https://github.com/Echo722/reaper-mcp-bridge/archive/refs/heads/main.zip
 ```
+
+更新时在同一条命令后面加上 `--reinstall`。其余步骤和[快速开始](#快速开始)一样。
 
 ## 工具速览
 
@@ -126,8 +133,8 @@ uvx --from https://github.com/Echo722/reaper-mcp-bridge/archive/refs/heads/main.
 
 ## 故障排查
 
-- **"timeout waiting for bridge response"**——REAPER 没开或桥脚本没跑。执行[快速开始](#1-把-lua-桥装进-reaper一次性)里的 `doctor` 命令。
-- **REAPER 控制台没有 `[MCP] bridge listening`**——重跑 `install-bridge --autostart` 并重启 REAPER,或在 Actions 列表手动加载 `Scripts/reaper_mcp_bridge.lua`。
+- **"timeout waiting for bridge response"**——REAPER 没开或桥脚本没跑。执行 `reaper-mcp-bridge doctor`。
+- **REAPER 控制台没有 `[MCP] bridge listening`**——重跑 `reaper-mcp-bridge install-bridge --autostart` 并重启 REAPER,或在 Actions 列表手动加载 `Scripts/reaper_mcp_bridge.lua`。
 - **REAPER 开着但桥一直不启动**——启动时的对话框(如 "Choose Project" / 崩溃恢复)会阻塞 `__startup.lua`,关掉对话框后桥立即加载。
 - **doctor 显示目录存在但 ping 失败**——核对 REAPER 控制台打印的目录与 doctor 打印的目录是否一致。
 

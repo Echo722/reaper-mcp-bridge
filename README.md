@@ -33,12 +33,18 @@ Prerequisites:
 - [uv](https://docs.astral.sh/uv/) (`winget install astral-sh.uv` / `brew install uv`). uv fetches a suitable Python and the dependencies on its own, so no separate Python install is needed.
 - [Git](https://git-scm.com/downloads), which uv uses to download this repository. No Git? See [Install without Git](#install-without-git).
 
-Every command below runs the package straight from this GitHub repository.
-
-### 1. Install the Lua bridge into REAPER (once)
+### 1. Install the package (once)
 
 ```sh
-uvx --from git+https://github.com/Echo722/reaper-mcp-bridge reaper-mcp-bridge install-bridge --autostart
+uv tool install git+https://github.com/Echo722/reaper-mcp-bridge
+```
+
+This puts a `reaper-mcp-bridge` command on your PATH. Your agent starts it locally, so it keeps working without network access. If the command isn't found afterwards, run `uv tool update-shell` and open a new terminal.
+
+### 2. Install the Lua bridge into REAPER (once)
+
+```sh
+reaper-mcp-bridge install-bridge --autostart
 ```
 
 This auto-detects your REAPER install (portable installs: add `--reaper-dir "D:\REAPER"`), copies the bridge script into REAPER's `Scripts/` folder, and wires it to load on startup. Restart REAPER; its console should show:
@@ -50,15 +56,15 @@ This auto-detects your REAPER install (portable installs: add `--reaper-dir "D:\
 Verify end-to-end:
 
 ```sh
-uvx --from git+https://github.com/Echo722/reaper-mcp-bridge reaper-mcp-bridge doctor
+reaper-mcp-bridge doctor
 ```
 
-### 2. Register the server with your agent (once per client)
+### 3. Register the server with your agent (once per client)
 
 **Claude Code**
 
 ```sh
-claude mcp add --scope user reaper -- uvx --from git+https://github.com/Echo722/reaper-mcp-bridge reaper-mcp-bridge
+claude mcp add --scope user reaper -- reaper-mcp-bridge
 ```
 
 **Claude Desktop** — merge [examples/claude_desktop_config.example.json](examples/claude_desktop_config.example.json) into your `claude_desktop_config.json`, then fully quit and relaunch Claude Desktop.
@@ -67,13 +73,12 @@ claude mcp add --scope user reaper -- uvx --from git+https://github.com/Echo722/
 
 ```toml
 [mcp_servers.reaper]
-command = "uvx"
-args = ["--from", "git+https://github.com/Echo722/reaper-mcp-bridge", "reaper-mcp-bridge"]
+command = "reaper-mcp-bridge"
 ```
 
-Any other MCP client that supports stdio servers works the same way: the command is `uvx`, the arguments are `--from git+https://github.com/Echo722/reaper-mcp-bridge reaper-mcp-bridge`.
+Any other MCP client that supports stdio servers works the same way: the command is `reaper-mcp-bridge`, with no arguments. If a client can't find it, give it the full path; `uv tool dir --bin` prints the folder it lives in.
 
-### 3. Use it
+### 4. Use it
 
 Open REAPER, then ask your agent things like:
 
@@ -85,19 +90,21 @@ Open REAPER, then ask your agent things like:
 
 ## Updating
 
-uv caches the package after the first run. To pick up the latest version from GitHub, refresh it once, then restart your agent (or reconnect the `reaper` server) so it starts the new version:
-
 ```sh
-uvx --refresh --from git+https://github.com/Echo722/reaper-mcp-bridge reaper-mcp-bridge doctor
+uv tool upgrade reaper-mcp-bridge
 ```
+
+Then restart your agent (or reconnect the `reaper` server) so it starts the new version.
 
 ## Install without Git
 
-Replace the `git+https://...` source with GitHub's zip download of the `main` branch in every command above, for example:
+Install from GitHub's zip download of the `main` branch instead:
 
 ```sh
-uvx --from https://github.com/Echo722/reaper-mcp-bridge/archive/refs/heads/main.zip reaper-mcp-bridge install-bridge --autostart
+uv tool install https://github.com/Echo722/reaper-mcp-bridge/archive/refs/heads/main.zip
 ```
+
+To update, run the same command with `--reinstall` added. Everything else in [Quick start](#quick-start) stays the same.
 
 ## Tool overview
 
@@ -128,8 +135,8 @@ By default the bridge data dir lives at `<REAPER resource path>/Scripts/reaper_m
 
 ## Troubleshooting
 
-- **"timeout waiting for bridge response"** — REAPER isn't open, or the bridge script isn't running. Run the `doctor` command from [Quick start](#1-install-the-lua-bridge-into-reaper-once).
-- **No `[MCP] bridge listening` line in REAPER's console** — re-run `install-bridge --autostart` and restart REAPER, or load `Scripts/reaper_mcp_bridge.lua` manually via the Actions list.
+- **"timeout waiting for bridge response"** — REAPER isn't open, or the bridge script isn't running. Run `reaper-mcp-bridge doctor`.
+- **No `[MCP] bridge listening` line in REAPER's console** — re-run `reaper-mcp-bridge install-bridge --autostart` and restart REAPER, or load `Scripts/reaper_mcp_bridge.lua` manually via the Actions list.
 - **REAPER is open but the bridge never starts** — a startup dialog (e.g. "Choose Project" / crash recovery) blocks `__startup.lua` until dismissed. Close the dialog; the bridge loads right after.
 - **Doctor says the dir exists but ping fails** — make sure the dir REAPER prints in its console matches the one doctor prints.
 

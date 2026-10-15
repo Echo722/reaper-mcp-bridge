@@ -1,7 +1,7 @@
 # Releasing
 
 Users install straight from this GitHub repository
-(`uvx --from git+https://github.com/Echo722/reaper-mcp-bridge ...`), so a
+(`uv tool install git+https://github.com/Echo722/reaper-mcp-bridge`), so a
 release is just a push to `main`. Nothing is uploaded to PyPI.
 
 ## Per release
@@ -20,5 +20,5 @@ release is just a push to `main`. Nothing is uploaded to PyPI.
    The pinned install source is then
    `git+https://github.com/Echo722/reaper-mcp-bridge@v<version>`.
 
-Existing users pick up the new version with the refresh command in the
-README's "Updating" section.
+Existing users pick up the new version with `uv tool upgrade reaper-mcp-bridge`
+(see the README's "Updating" section).
