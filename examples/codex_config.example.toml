@@ -1,0 +1,12 @@
+# Add to ~/.codex/config.toml (Codex CLI global config).
+# Requires uv (https://docs.astral.sh/uv/) and Git.
+#
+# Only set REAPER_MCP_BRIDGE_DIR if you moved the bridge data dir; by default
+# `reaper-mcp-bridge install-bridge` records the location automatically.
+
+[mcp_servers.reaper]
+command = "uvx"
+args = ["--from", "git+https://github.com/Echo722/reaper-mcp-bridge", "reaper-mcp-bridge"]
+
+# [mcp_servers.reaper.env]
+# REAPER_MCP_BRIDGE_DIR = 'D:\custom\bridge\dir'

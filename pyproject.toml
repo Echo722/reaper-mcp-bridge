@@ -1,0 +1,44 @@
+[project]
+name = "reaper-mcp-bridge"
+version = "0.2.0"
+description = "MCP server that lets AI agents (Claude, Codex, ...) control the REAPER DAW via an in-REAPER Lua file bridge"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+authors = [{ name = "reaper-mcp-bridge contributors" }]
+keywords = ["reaper", "daw", "mcp", "model-context-protocol", "audio", "midi"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Multimedia :: Sound/Audio",
+]
+dependencies = [
+    # mcp 2.x renamed FastMCP to MCPServer; stay on the 1.x API until migrated.
+    "mcp>=1.27,<2",
+]
+
+[project.urls]
+Homepage = "https://github.com/Echo722/reaper-mcp-bridge"
+Issues = "https://github.com/Echo722/reaper-mcp-bridge/issues"
+
+[project.scripts]
+reaper-mcp-bridge = "server.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["server*"]
+
+[tool.setuptools.package-data]
+server = ["bridge_lua/*.lua"]

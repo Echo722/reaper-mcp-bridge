@@ -1,0 +1,9 @@
+{
+  "_comment": "Project-scope config for Claude Code (save as .mcp.json in a project root). For global registration prefer: claude mcp add --scope user reaper -- uvx --from git+https://github.com/Echo722/reaper-mcp-bridge reaper-mcp-bridge",
+  "mcpServers": {
+    "reaper": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/Echo722/reaper-mcp-bridge", "reaper-mcp-bridge"]
+    }
+  }
+}

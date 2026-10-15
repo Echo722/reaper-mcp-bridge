@@ -1,0 +1,23 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+build/
+dist/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Bridge transient data (if someone ever points the bridge dir into this repo)
+bridge_data/
+*.req.json
+*.res.json
+*.tmp
+
+# IDE
+.vscode/
+.idea/
+
+# Local agent state
+.claude/
